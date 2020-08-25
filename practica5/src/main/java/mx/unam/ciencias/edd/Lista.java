@@ -28,7 +28,7 @@ public class Lista<T> implements Coleccion<T> {
 
         /* Construye un nodo con un elemento. */
         public Nodo(T elemento) {
-            // Aquí va su código.
+          this.elemento = elemento;
         }
     }
 
@@ -41,37 +41,56 @@ public class Lista<T> implements Coleccion<T> {
 
         /* Construye un nuevo iterador. */
         public Iterador() {
-            // Aquí va su código.
+          this.anterior = null;
+          this.siguiente = cabeza;
         }
 
         /* Nos dice si hay un elemento siguiente. */
         @Override public boolean hasNext() {
-            // Aquí va su código.
+          if(this.siguiente == null)
+            return false;
+          return true;
         }
 
         /* Nos da el elemento siguiente. */
         @Override public T next() {
-            // Aquí va su código.
+          if(hasNext()){
+            this.anterior = this.siguiente;
+            this.siguiente = this.siguiente.siguiente;
+            return this.anterior.elemento;
+          }else{
+              throw new NoSuchElementException("No hay elemento siguiente.");
+          }
         }
 
         /* Nos dice si hay un elemento anterior. */
         @Override public boolean hasPrevious() {
-            // Aquí va su código.
+          if(this.anterior == null)
+            return false;
+          return true;
         }
 
         /* Nos da el elemento anterior. */
         @Override public T previous() {
-            // Aquí va su código.
+          if(hasPrevious()){
+            this.siguiente = this.anterior;
+            this.anterior = anterior.anterior;
+            return this.siguiente.elemento;
+          }else{
+            throw new NoSuchElementException("No hay elemento anterior");
+          }
         }
 
         /* Mueve el iterador al inicio de la lista. */
         @Override public void start() {
-            // Aquí va su código.
+          this.siguiente = cabeza;
+          this.anterior = null;
         }
 
         /* Mueve el iterador al final de la lista. */
         @Override public void end() {
-            // Aquí va su código.
+          this.anterior = rabo;
+          this.siguiente = null;
         }
     }
 
@@ -88,7 +107,7 @@ public class Lista<T> implements Coleccion<T> {
      * @return la longitud de la lista, el número de elementos que contiene.
      */
     public int getLongitud() {
-        // Aquí va su código.
+      return this.longitud;
     }
 
     /**
@@ -97,7 +116,7 @@ public class Lista<T> implements Coleccion<T> {
      * @return el número elementos en la lista.
      */
     @Override public int getElementos() {
-        // Aquí va su código.
+      return this.longitud;
     }
 
     /**
@@ -106,7 +125,9 @@ public class Lista<T> implements Coleccion<T> {
      *         otro caso.
      */
     @Override public boolean esVacia() {
-        // Aquí va su código.
+      if(cabeza == null)
+        return true;
+      return false;
     }
 
     /**
@@ -118,7 +139,18 @@ public class Lista<T> implements Coleccion<T> {
      *         <code>null</code>.
      */
     @Override public void agrega(T elemento) {
-        // Aquí va su código.
+      if(elemento == null){
+        throw new IllegalArgumentException();
+      }else{
+        Nodo n = new Nodo(elemento);
+        if(this.cabeza == null){
+          this.cabeza = n;
+          this.rabo = n;
+          longitud++;
+        }else{
+          agregaFinal(elemento);
+        }
+      }
     }
 
     /**
@@ -129,7 +161,20 @@ public class Lista<T> implements Coleccion<T> {
      *         <code>null</code>.
      */
     public void agregaFinal(T elemento) {
-        // Aquí va su código.
+      if(elemento == null){
+        throw new IllegalArgumentException();
+      }else{
+        Nodo n = new Nodo(elemento);
+        longitud++;
+        if(cabeza == null){
+          this.cabeza = n;
+          this.rabo = n;
+        }else{
+          this.rabo.siguiente = n;
+          n.anterior = this.rabo;
+          this.rabo = n;
+        }
+      }
     }
 
     /**
@@ -140,7 +185,20 @@ public class Lista<T> implements Coleccion<T> {
      *         <code>null</code>.
      */
     public void agregaInicio(T elemento) {
-        // Aquí va su código.
+      if(elemento == null){
+        throw new IllegalArgumentException();
+      }else{
+        Nodo n = new Nodo(elemento);
+        longitud++;
+        if(cabeza == null){
+          cabeza = n;
+          rabo = n;
+        }else{
+          this.cabeza.anterior = n;
+          n.siguiente = this.cabeza;
+          this.cabeza = n;
+        }
+      }
     }
 
     /**
@@ -159,7 +217,40 @@ public class Lista<T> implements Coleccion<T> {
      *         <code>null</code>.
      */
     public void inserta(int i, T elemento) {
-        // Aquí va su código.
+      if(elemento == null)
+        throw new IllegalArgumentException();
+      if(i <= 0){
+        agregaInicio(elemento);
+      }else if(i >= longitud){
+        agrega(elemento);
+      }else{
+        Nodo aux = cabeza;
+        for(int j = 0; j < i; j++){
+          aux = aux.siguiente;
+        }
+        Nodo nuevo = new Nodo(elemento);
+        aux.anterior.siguiente = nuevo;
+        nuevo.siguiente = aux;
+        nuevo.anterior = aux.anterior;
+        aux.anterior = nuevo;
+        longitud++;
+      }
+    }
+
+    /**
+    *Busca un elemento en la lista.
+    * @param elemento elemento a buscar.
+    */
+    private Nodo buscaNodo(T elemento){
+      Nodo aux = cabeza;
+      while(aux != null){
+        if(aux.elemento.equals(elemento)){
+          return aux;
+        }else{
+          aux = aux.siguiente;
+        }
+      }
+      return null;
     }
 
     /**
@@ -168,7 +259,18 @@ public class Lista<T> implements Coleccion<T> {
      * @param elemento el elemento a eliminar.
      */
     @Override public void elimina(T elemento) {
-        // Aquí va su código.
+      Nodo n = buscaNodo(elemento);
+      if(n == null){
+        return;
+      }else if(cabeza == n){
+        eliminaPrimero();
+      }else if(rabo != n){
+        n.anterior.siguiente = n.siguiente;
+        n.siguiente.anterior = n.anterior;
+        longitud--;
+      }else{
+        eliminaUltimo();
+      }
     }
 
     /**
@@ -177,7 +279,19 @@ public class Lista<T> implements Coleccion<T> {
      * @throws NoSuchElementException si la lista es vacía.
      */
     public T eliminaPrimero() {
-        // Aquí va su código.
+      if(esVacia()){
+        throw new NoSuchElementException();
+      }else if(cabeza == rabo){
+        T elemento = cabeza.elemento;
+        limpia();
+        return elemento;
+      }else{
+        T elemento = cabeza.elemento;
+        cabeza = cabeza.siguiente;
+        cabeza.anterior = null;
+        longitud--;
+        return elemento;
+      }
     }
 
     /**
@@ -186,7 +300,19 @@ public class Lista<T> implements Coleccion<T> {
      * @throws NoSuchElementException si la lista es vacía.
      */
     public T eliminaUltimo() {
-        // Aquí va su código.
+      if(esVacia()){
+        throw new NoSuchElementException();
+      }else if(cabeza == rabo){
+        T elemento = rabo.elemento;
+        limpia();
+        return elemento;
+      }else{
+        T elemento = rabo.elemento;
+        rabo = rabo.anterior;
+        rabo.siguiente = null;
+        longitud--;
+        return elemento;
+      }
     }
 
     /**
@@ -196,7 +322,9 @@ public class Lista<T> implements Coleccion<T> {
      *         <tt>false</tt> en otro caso.
      */
     @Override public boolean contiene(T elemento) {
-        // Aquí va su código.
+      if(buscaNodo(elemento) == null)
+        return false;
+      return true;
     }
 
     /**
@@ -204,7 +332,14 @@ public class Lista<T> implements Coleccion<T> {
      * @return una nueva lista que es la reversa la que manda llamar el método.
      */
     public Lista<T> reversa() {
-        // Aquí va su código.
+      Lista<T> newlist = new Lista<T>();
+      Nodo aux = cabeza;
+      while(aux != null){
+        T elemento = aux.elemento;
+        newlist.agregaInicio(elemento);
+        aux = aux.siguiente;
+      }
+      return newlist;
     }
 
     /**
@@ -213,14 +348,24 @@ public class Lista<T> implements Coleccion<T> {
      * @return una copiad de la lista.
      */
     public Lista<T> copia() {
-        // Aquí va su código.
+      Lista<T> newlist = new Lista<T>();
+      Nodo aux = cabeza;
+      T elemento;
+      while(aux != null){
+        elemento = aux.elemento;
+        newlist.agrega(elemento);
+        aux = aux.siguiente;
+      }
+      return newlist;
     }
 
     /**
      * Limpia la lista de elementos, dejándola vacía.
      */
     @Override public void limpia() {
-        // Aquí va su código.
+      cabeza = null;
+      rabo = null;
+      longitud = 0;
     }
 
     /**
@@ -229,7 +374,9 @@ public class Lista<T> implements Coleccion<T> {
      * @throws NoSuchElementException si la lista es vacía.
      */
     public T getPrimero() {
-        // Aquí va su código.
+      if(cabeza == null)
+        throw new NoSuchElementException();
+      return cabeza.elemento;
     }
 
     /**
@@ -238,7 +385,22 @@ public class Lista<T> implements Coleccion<T> {
      * @throws NoSuchElementException si la lista es vacía.
      */
     public T getUltimo() {
-        // Aquí va su código.
+      if(cabeza == null)
+        throw new NoSuchElementException();
+      return rabo.elemento;
+    }
+
+    /**
+     *Regresa el nodo en la <em>i</em>-ésima posición de la lista.
+     *@param i índice de la posición del elemento que queremos.
+     *@return nodo en la <em>i</em>-ésima posición.
+     */
+    private Nodo iNodo(int i){
+      Nodo nodo = this.cabeza;
+      for(int j = 0; j < i; j++){
+           nodo = nodo.siguiente;
+      }
+      return nodo;
     }
 
     /**
@@ -249,7 +411,12 @@ public class Lista<T> implements Coleccion<T> {
      *         igual que el número de elementos en la lista.
      */
     public T get(int i) {
-        // Aquí va su código.
+      if(i < 0 || i >= this.longitud){
+        throw new ExcepcionIndiceInvalido();
+      }else{
+        Nodo aux = iNodo(i);
+        return aux.elemento;
+      }
     }
 
     /**
@@ -259,7 +426,17 @@ public class Lista<T> implements Coleccion<T> {
      *         no está contenido en la lista.
      */
     public int indiceDe(T elemento) {
-        // Aquí va su código.
+      Nodo aux = cabeza;
+      int i = 0;
+      while(aux != null){
+        if (aux.elemento.equals(elemento)){
+          return i;
+        }else{
+          aux = aux.siguiente;
+          i++;
+        }
+      }
+      return -1;
     }
 
     /**
@@ -267,7 +444,16 @@ public class Lista<T> implements Coleccion<T> {
      * @return una representación en cadena de la lista.
      */
     @Override public String toString() {
-        // Aquí va su código.
+      if (this.esVacia())
+        return "[]";
+      String c = "[";
+      Nodo aux = this.cabeza;
+      while(aux != this.rabo){
+        c += aux.elemento.toString() + ", ";
+        aux = aux.siguiente;
+      }
+      c+= this.rabo.elemento.toString() + "]";
+      return c;
     }
 
     /**
@@ -280,7 +466,21 @@ public class Lista<T> implements Coleccion<T> {
         if (objeto == null || getClass() != objeto.getClass())
             return false;
         @SuppressWarnings("unchecked") Lista<T> lista = (Lista<T>)objeto;
-        // Aquí va su código.
+        if(this.longitud != lista.getLongitud()){
+        return false;
+        }else{
+          Nodo aux = this.cabeza;
+          Nodo auxo = lista.cabeza;
+          while(aux != null){
+            if(!aux.elemento.equals(auxo.elemento)){
+              return false;
+            }else{
+              aux = aux.siguiente;
+              auxo = auxo.siguiente;
+            }
+          }
+          return true;
+        }
     }
 
     /**
@@ -299,6 +499,32 @@ public class Lista<T> implements Coleccion<T> {
         return new Iterador();
     }
 
+    private Lista<T> mezcla(Lista<T> l1, Lista<T> l2, Comparator<T>
+    comparador){
+      Lista<T> newlist = new Lista<T>();
+      Nodo aux1 = l1.cabeza;
+      Nodo aux2 = l2.cabeza;
+      T elemento;
+      while(aux1 != null && aux2 != null){
+        if(comparador.compare(aux1.elemento, aux2.elemento) <= 0){
+          newlist.agrega(aux1.elemento);
+          aux1 = aux1.siguiente;
+        }else{
+          newlist.agrega(aux2.elemento);
+          aux2 = aux2.siguiente;
+        }
+      }
+      while(aux1 != null){
+        newlist.agrega(aux1.elemento);
+        aux1 = aux1.siguiente;
+      }
+      while(aux2 != null){
+        newlist.agrega(aux2.elemento);
+        aux2 = aux2.siguiente;
+      }
+      return newlist;
+    }
+
     /**
      * Regresa una copia de la lista, pero ordenada. Para poder hacer el
      * ordenamiento, el método necesita una instancia de {@link Comparator} para
@@ -308,7 +534,22 @@ public class Lista<T> implements Coleccion<T> {
      * @return una copia de la lista, pero ordenada.
      */
     public Lista<T> mergeSort(Comparator<T> comparador) {
-        // Aquí va su código.
+      Lista<T> newlist = copia();
+      if(this.longitud <= 1)
+        return newlist;
+      Lista<T> l1 = new Lista<T>();
+      Lista<T> l2 = new Lista<T>();
+      int n = newlist.getLongitud()/2;
+      for(int i = 0; i < n; i++){
+        l1.agrega(newlist.get(i));
+      }
+      for(int j = n; j < newlist.getLongitud(); j++){
+        l2.agrega(newlist.get(j));
+      }
+      l1 = l1.mergeSort(comparador);
+      l2 = l2.mergeSort(comparador);
+      newlist = mezcla(l1,l2,comparador);
+      return newlist;
     }
 
     /**
@@ -333,7 +574,13 @@ public class Lista<T> implements Coleccion<T> {
      *         <tt>false</tt> en otro caso.
      */
     public boolean busquedaLineal(T elemento, Comparator<T> comparador) {
-        // Aquí va su código.
+      Nodo aux = cabeza;
+      while(aux != null){
+        if(comparador.compare(elemento, aux.elemento) == 0)
+          return true;
+          aux = aux.siguiente;
+      }
+      return false;
     }
 
     /**

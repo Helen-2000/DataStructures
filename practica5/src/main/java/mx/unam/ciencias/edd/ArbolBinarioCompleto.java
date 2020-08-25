@@ -18,17 +18,24 @@ public class ArbolBinarioCompleto<T> extends ArbolBinario<T> {
 
         /* Inicializa al iterador. */
         public Iterador() {
-            // Aquí va su código.
+          cola = new Cola<ArbolBinario<T>.Vertice>();
+          if(raiz != null)
+            cola.mete(raiz);
         }
 
         /* Nos dice si hay un elemento siguiente. */
         @Override public boolean hasNext() {
-            // Aquí va su código.
+          return !cola.esVacia();
         }
 
         /* Regresa el siguiente elemento en orden BFS. */
         @Override public T next() {
-            // Aquí va su código.
+          Vertice aux= cola.saca();
+          if(aux.izquierdo != null)
+            cola.mete(aux.izquierdo);
+          if(aux.derecho != null)
+            cola.mete(aux.derecho);
+          return aux.get();
         }
     }
 
@@ -56,7 +63,36 @@ public class ArbolBinarioCompleto<T> extends ArbolBinario<T> {
      *         <code>null</code>.
      */
     @Override public void agrega(T elemento) {
-        // Aquí va su código.
+      if(elemento == null)
+        throw new IllegalArgumentException();
+      Vertice v1 = new Vertice(elemento);
+      if(raiz == null){
+        raiz = v1;
+        elementos++;
+        return;
+      }
+      Vertice aux = raiz;
+      Cola<ArbolBinario<T>.Vertice> cola = new Cola<>();
+      cola.mete(aux);
+      while(!cola.esVacia()){
+        aux = cola.saca();
+        if(!aux.hayIzquierdo() || !aux.hayDerecho()){
+          if(!aux.hayIzquierdo()){
+            aux.izquierdo = v1;
+            v1.padre = aux;
+            elementos++;
+            return;
+          }
+          if(!aux.hayDerecho()){
+            aux.derecho = v1;
+            v1.padre = aux;
+            elementos++;
+            return;
+          }
+        }
+        cola.mete(aux.izquierdo);
+        cola.mete(aux.derecho);
+      }
     }
 
     /**
@@ -66,7 +102,29 @@ public class ArbolBinarioCompleto<T> extends ArbolBinario<T> {
      * @param elemento el elemento a eliminar.
      */
     @Override public void elimina(T elemento) {
-        // Aquí va su código.
+      Vertice aux = (Vertice)busca(elemento);
+      if(aux == null)
+        return;
+      elementos--;
+      if(elementos == 0)
+        raiz = null;
+      Cola<ArbolBinario<T>.Vertice> cola = new Cola<>();
+      if(raiz == null)
+        return;
+      cola.mete(raiz);
+      Vertice ultimo = null;
+      while(!cola.esVacia()){
+        ultimo = cola.saca();
+        if(ultimo.hayIzquierdo())
+          cola.mete(ultimo.izquierdo);
+        if(ultimo.hayDerecho())
+          cola.mete(ultimo.derecho);
+      }
+      aux.elemento = ultimo.elemento;
+      Vertice padre = ultimo.padre;
+      if(padre.izquierdo == ultimo)
+        padre.izquierdo = null;
+      else padre.derecho = null;
     }
 
     /**
@@ -75,7 +133,9 @@ public class ArbolBinarioCompleto<T> extends ArbolBinario<T> {
      * @return la altura del árbol.
      */
     @Override public int altura() {
-        // Aquí va su código.
+      if(raiz == null)
+        return -1;
+      return raiz.altura();
     }
 
     /**
@@ -84,7 +144,19 @@ public class ArbolBinarioCompleto<T> extends ArbolBinario<T> {
      * @param accion la acción a realizar en cada elemento del árbol.
      */
     public void bfs(AccionVerticeArbolBinario<T> accion) {
-        // Aquí va su código.
+      if(raiz == null)
+        return;
+      Cola<ArbolBinario<T>.Vertice> cola = new Cola<>();
+      cola.mete(raiz);
+      Vertice aux;
+      while(!cola.esVacia()){
+        aux = cola.saca();
+        accion.actua(aux);
+        if(aux.hayIzquierdo())
+          cola.mete(aux.izquierdo);
+        if(aux.hayDerecho())
+          cola.mete(aux.derecho);
+      }
     }
 
     /**
